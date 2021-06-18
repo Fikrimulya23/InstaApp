@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:insta_app/pages/wait_page.dart';
 
 class AuthServices {
   FirebaseAuth _auth = FirebaseAuth.instance;
@@ -15,7 +16,9 @@ class AuthServices {
       await FirebaseAuth.instance
           .createUserWithEmailAndPassword(email: _email, password: _password);
 
-      Navigator.pop(buildContext);
+      Future.delayed(const Duration(seconds: 1), () {
+        Navigator.of(buildContext).pop(); //regrese a la pantalla anterior
+      });
       print("berhasil daftar");
     } catch (e) {
       if (e.code == 'weak-password') {

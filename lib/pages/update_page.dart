@@ -17,7 +17,7 @@ class MyUpdatePage extends StatefulWidget {
 
 class _MyUpdatePageState extends State<MyUpdatePage> {
   String productImage;
-  TextEditingController recipeInputController;
+  TextEditingController captionInputController;
   TextEditingController nameInputController;
   TextEditingController imageInputController;
 
@@ -25,7 +25,7 @@ class _MyUpdatePageState extends State<MyUpdatePage> {
   final db = FirebaseFirestore.instance;
   final _formKey = GlobalKey<FormState>();
   String name;
-  String recipe;
+  String caption;
 
   pickerCam() async {
     PickedFile img = await ImagePicker().getImage(source: ImageSource.camera);
@@ -56,33 +56,20 @@ class _MyUpdatePageState extends State<MyUpdatePage> {
   @override
   void initState() {
     super.initState();
-    recipeInputController =
-        new TextEditingController(text: widget.ds.get('recipe'));
+    captionInputController =
+        new TextEditingController(text: widget.ds.get('caption'));
     nameInputController =
         new TextEditingController(text: widget.ds.get('name'));
-    /* nameInputController =
-        new TextEditingController(text: widget.ds.data["name"]); */
-    productImage = widget.ds.get('image'); //nuevo
-    print(productImage); //nuevo
-  }
 
-  /*
-  updateData(selectedDoc, newValues) {
-    Firestore.instance
-        .collection('colrecipes')
-        .document(selectedDoc)
-        .updateData(newValues)
-        .catchError((e) {
-      // print(e);
-    });
+    productImage = widget.ds.get('image');
+    print(productImage);
   }
-  */
 
   Future getPosts() async {
     var firestore = FirebaseFirestore.instance;
-    // QuerySnapshot qn = await firestore.collection("colrecipe").getDocuments();
-    QuerySnapshot qn = await firestore.collection("colrecipe").get();
-    // print();
+
+    QuerySnapshot qn = await firestore.collection("photos").get();
+
     return qn.docs;
   }
 
@@ -92,123 +79,184 @@ class _MyUpdatePageState extends State<MyUpdatePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Update Page'),
+        backgroundColor: Color.fromRGBO(70, 208, 2017, 1),
       ),
-      body: ListView(
-        padding: EdgeInsets.all(8),
-        children: <Widget>[
-          Form(
-            key: _formKey,
-            child: Column(
-              children: <Widget>[
-                Row(
+      body: SingleChildScrollView(
+        child: Container(
+          color: Colors.grey[200],
+          width: MediaQuery.of(context).size.width,
+          height: MediaQuery.of(context).size.height - 100,
+          padding: EdgeInsets.all(8),
+          child: Column(
+            children: <Widget>[
+              Form(
+                key: _formKey,
+                child: Column(
                   children: <Widget>[
-                    new Container(
-                      height: 100.0,
-                      width: 100.0,
-                      decoration: new BoxDecoration(
-                        border: new Border.all(color: Colors.blueAccent),
-                      ),
-                      padding: new EdgeInsets.all(5.0),
-                      child: image == null ? Text('Add') : Image.file(image),
+                    Column(
+                      children: <Widget>[
+                        (image == null)
+                            ? new Container(
+                                margin: EdgeInsets.only(top: 20),
+                                height: MediaQuery.of(context).size.width - 50,
+                                width: MediaQuery.of(context).size.width - 50,
+                                decoration: new BoxDecoration(
+                                    border: new Border.all(
+                                        width: 3,
+                                        color: Colors.black.withOpacity(0.3))),
+                                padding: new EdgeInsets.all(5.0),
+                                child: productImage == ''
+                                    ? Text('Edit')
+                                    : Image.network(
+                                        productImage + '?alt=media'),
+                              )
+                            : new Container(
+                                margin: EdgeInsets.only(top: 20),
+                                height: MediaQuery.of(context).size.width - 50,
+                                width: MediaQuery.of(context).size.width - 50,
+                                decoration: new BoxDecoration(
+                                  border: new Border.all(
+                                      width: 3,
+                                      color: Colors.black.withOpacity(0.3)),
+                                ),
+                                padding: new EdgeInsets.all(5.0),
+                                child: image == null
+                                    ? Center(
+                                        child: Text(
+                                        'new image',
+                                        style: TextStyle(
+                                            color:
+                                                Colors.black.withOpacity(0.3)),
+                                      ))
+                                    : Image.file(image),
+                              ),
+                        //
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Container(
+                              margin: EdgeInsets.fromLTRB(20, 10, 20, 10),
+                              height: 40,
+                              width: MediaQuery.of(context).size.width * 0.35,
+                              decoration: BoxDecoration(
+                                  color: Colors.grey.withOpacity(0.2),
+                                  borderRadius: BorderRadius.circular(40)),
+                              child: InkWell(
+                                borderRadius: BorderRadius.circular(40),
+                                onTap: pickerCam,
+                                child: Center(
+                                  child: Icon(Icons.camera_alt),
+                                ),
+                              ),
+                            ),
+                            Container(
+                              margin: EdgeInsets.fromLTRB(20, 10, 20, 10),
+                              height: 40,
+                              width: MediaQuery.of(context).size.width * 0.35,
+                              decoration: BoxDecoration(
+                                  color: Colors.grey.withOpacity(0.2),
+                                  borderRadius: BorderRadius.circular(40)),
+                              child: InkWell(
+                                borderRadius: BorderRadius.circular(40),
+                                onTap: pickerGallery,
+                                child: Center(
+                                  child: Icon(
+                                    Icons.image,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 2.2),
-                      child: new Container(
-                        height: 100.0,
-                        width: 100.0,
-                        decoration: new BoxDecoration(
-                            border: new Border.all(color: Colors.blueAccent)),
-                        padding: new EdgeInsets.all(5.0),
-                        child: productImage == ''
-                            ? Text('Edit')
-                            : Image.network(productImage + '?alt=media'),
+                    Container(
+                      width: MediaQuery.of(context).size.width - 50,
+                      height: MediaQuery.of(context).size.width / 2,
+                      child: TextFormField(
+                        controller: captionInputController,
+                        maxLines: 10,
+                        decoration: InputDecoration(
+                          border: InputBorder.none,
+                          hintText: 'caption',
+                          fillColor: Colors.black.withOpacity(0.1),
+                          filled: true,
+                        ),
+                        // ignore: missing_return
+                        validator: (value) {
+                          if (value.isEmpty) {
+                            return 'Please enter some caption';
+                          }
+                        },
+                        onSaved: (value) => caption = value,
                       ),
-                    ),
-                    Divider(),
-                    new IconButton(
-                        icon: new Icon(Icons.camera_alt), onPressed: pickerCam),
-                    Divider(),
-                    new IconButton(
-                        icon: new Icon(Icons.image), onPressed: pickerGallery),
+                    )
                   ],
                 ),
-                Container(
-                  child: TextFormField(
-                    controller: nameInputController,
-                    decoration: InputDecoration(
-                      border: InputBorder.none,
-                      hintText: 'name',
-                      fillColor: Colors.grey[300],
-                      filled: true,
-                    ),
-                    validator: (value) {
-                      if (value.isEmpty) {
-                        return 'Please enter some text';
-                      }
-                    },
-                    onSaved: (value) => name = value,
-                  ),
-                ),
-                Container(
-                  child: TextFormField(
-                    controller: recipeInputController,
-                    maxLines: 10,
-                    decoration: InputDecoration(
-                      border: InputBorder.none,
-                      hintText: 'recipe',
-                      fillColor: Colors.grey[300],
-                      filled: true,
-                    ),
-                    validator: (value) {
-                      if (value.isEmpty) {
-                        return 'Please enter some recipe';
-                      }
-                    },
-                    onSaved: (value) => recipe = value,
-                  ),
-                )
-              ],
-            ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: <Widget>[
-              RaisedButton(
-                child: Text('Update'),
-                onPressed: () {
-                  DateTime now = DateTime.now();
-                  String nuevoformato =
-                      DateFormat('kk:mm:ss:MMMMd').format(now);
-                  var fullImageName = 'nomfoto-$nuevoformato' + '.jpg';
-                  var fullImageName2 = 'nomfoto-$nuevoformato' + '.jpg';
-
-                  final Reference ref =
-                      FirebaseStorage.instance.ref().child(fullImageName);
-                  final UploadTask task = ref.putFile(image);
-
-                  var part1 =
-                      'https://firebasestorage.googleapis.com/v0/b/insta-app-8bc64.appspot.com/o/'; //esto cambia segun su firestore
-
-                  var fullPathImage = part1 + fullImageName2;
-                  print(fullPathImage);
-                  FirebaseFirestore.instance
-                      .collection('colrecipes')
-                      .doc(widget.ds.id)
-                      .update({
-                    'name': nameInputController.text,
-                    'recipe': recipeInputController.text,
-                    'image': '$fullPathImage'
-                  });
-                  Future.delayed(const Duration(seconds: 1), () {
-                    Navigator.of(context)
-                        .pop(); //regrese a la pantalla anterior
-                  });
-                  // Navigator.of(context).pop(); //regrese a la pantalla anterior
-                },
               ),
+              Expanded(child: SizedBox()),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  // ignore: deprecated_member_use
+                  Container(
+                    margin: EdgeInsets.fromLTRB(0, 0, 0, 30),
+                    height: 40,
+                    width: MediaQuery.of(context).size.width * 0.6,
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                          width: 2, color: Colors.black.withOpacity(0.2)),
+                      borderRadius: BorderRadius.circular(10),
+                      color: Color.fromRGBO(70, 208, 2017, 1),
+                    ),
+                    child: InkWell(
+                      child: Center(
+                        child: Text(
+                          "Upload",
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w500,
+                              fontSize: 15),
+                        ),
+                      ),
+                      onTap: () {
+                        DateTime now = DateTime.now();
+                        String nuevoformato =
+                            DateFormat('kk:mm:ss:MMMMd').format(now);
+                        var fullImageName = 'nomfoto-$nuevoformato' + '.jpg';
+                        var fullImageName2 = 'nomfoto-$nuevoformato' + '.jpg';
+
+                        final Reference ref =
+                            FirebaseStorage.instance.ref().child(fullImageName);
+                        // ignore: unused_local_variable
+                        final UploadTask task = ref.putFile(image);
+
+                        var part1 =
+                            'https://firebasestorage.googleapis.com/v0/b/insta-app-8bc64.appspot.com/o/'; //esto cambia segun su firestore
+
+                        var fullPathImage = part1 + fullImageName2;
+                        print(fullPathImage);
+                        FirebaseFirestore.instance
+                            .collection('photos')
+                            .doc(widget.ds.id)
+                            .update({
+                          'name': nameInputController.text,
+                          'caption': captionInputController.text,
+                          'image': '$fullPathImage'
+                        });
+                        Future.delayed(const Duration(seconds: 1), () {
+                          Navigator.of(context)
+                              .pop(); //regrese a la pantalla anterior
+                        });
+                        // Navigator.of(context).pop(); //regrese a la pantalla anterior
+                      },
+                    ),
+                  ),
+                ],
+              )
             ],
-          )
-        ],
+          ),
+        ),
       ),
     );
   }

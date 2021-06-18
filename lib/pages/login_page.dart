@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:insta_app/pages/bottom_navigation.dart';
-import 'package:insta_app/pages/home_page.dart';
+
 import 'package:insta_app/pages/register_page.dart';
 import 'package:insta_app/services/auth_service.dart';
 

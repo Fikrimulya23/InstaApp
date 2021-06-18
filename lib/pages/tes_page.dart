@@ -1,17 +1,10 @@
-// import 'dart:io';
-import 'dart:typed_data';
-
-// import 'package:cloud_firestore/cloud_firestore.dart';
-// import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:insta_app/pages/add_page.dart';
 import 'package:insta_app/pages/update_page.dart';
 
 import 'info_page.dart';
-// import 'package:fluttertoast/fluttertoast.dart';
-// import 'package:image_picker/image_picker.dart';
-// import 'package:insta_app/services/data_holder.dart';
+import 'listview_page.dart';
 
 class TesPage extends StatefulWidget {
   @override
@@ -64,16 +57,9 @@ class _TesPageState extends State<TesPage> {
             icon: Icon(Icons.list),
             tooltip: 'List',
             onPressed: () {
-              /*  Route route = MaterialPageRoute(builder: (context) => MyListPage());
-             Navigator.push(context, route);   */
-            },
-          ),
-          IconButton(
-            icon: Icon(Icons.search),
-            tooltip: 'Search',
-            onPressed: () {
-              /*  Route route = MaterialPageRoute(builder: (context) => MyQueryPage());
-             Navigator.push(context, route);       */
+              Route route =
+                  MaterialPageRoute(builder: (context) => MyListPage());
+              Navigator.push(context, route);
             },
           ),
         ],
@@ -189,125 +175,3 @@ class _TesPageState extends State<TesPage> {
     );
   }
 }
-// class TesPage extends StatefulWidget {
-//   @override
-//   _TesPageState createState() => _TesPageState();
-// }
-
-// class _TesPageState extends State<TesPage> {
-//   bool isLoading;
-
-//   File image;
-//   String imageUrl;
-//   final picker = ImagePicker();
-
-//   getFirebaseImageFolder() {
-//     final Reference storageRef =
-//         FirebaseStorage.instance.ref().child('Gallery').child('Images');
-//     storageRef.listAll().then((result) {
-//       print("result is $result");
-//     });
-//   }
-
-//   Future uploadFile() async {
-//     String fileName = DateTime.now().millisecondsSinceEpoch.toString();
-//     Reference reference = FirebaseStorage.instance.ref().child(fileName);
-//     UploadTask uploadTask = reference.putFile(image);
-//     TaskSnapshot storageTaskSnapshot = await uploadTask;
-//     storageTaskSnapshot.ref.getDownloadURL().then((downloadUrl) {
-//       imageUrl = downloadUrl;
-//       setState(() {
-//         isLoading = false;
-//         // onSendMessage(imageUrl, 1);
-//         // addMessage(true, imageUrl, 1);
-//       });
-//     }, onError: (err) {
-//       setState(() {
-//         isLoading = false;
-//       });
-//       Fluttertoast.showToast(msg: 'This file is not an image');
-//     });
-//   }
-
-//   Future getImageFromGallery() async {
-//     ImagePicker imagePicker = ImagePicker();
-//     PickedFile pickedFile;
-
-//     pickedFile = await imagePicker.getImage(
-//         source: ImageSource.gallery, imageQuality: 50);
-//     image = File(pickedFile.path);
-
-//     if (image != null) {
-//       setState(() {
-//         isLoading = true;
-//       });
-//       uploadFile();
-//     }
-//   }
-
-//   Future getImageFromCamera() async {
-//     ImagePicker imagePicker = ImagePicker();
-//     PickedFile pickedFile;
-
-//     pickedFile = await imagePicker.getImage(
-//         source: ImageSource.camera, imageQuality: 50);
-//     image = File(pickedFile.path);
-
-//     if (image != null) {
-//       setState(() {
-//         isLoading = true;
-//       });
-//       uploadFile();
-//     }
-//   }
-
-//   _showPicker(context) {
-//     showModalBottomSheet(
-//         context: context,
-//         builder: (BuildContext bc) {
-//           return SafeArea(
-//             child: Container(
-//               child: new Wrap(
-//                 children: <Widget>[
-//                   new ListTile(
-//                       leading: new Icon(Icons.photo_library),
-//                       title: new Text('Photo Library'),
-//                       onTap: () {
-//                         getImageFromGallery();
-//                         Navigator.of(context).pop();
-//                       }),
-//                   new ListTile(
-//                     leading: new Icon(Icons.photo_camera),
-//                     title: new Text('Camera'),
-//                     onTap: () {
-//                       getImageFromCamera();
-//                       Navigator.of(context).pop();
-//                     },
-//                   ),
-//                 ],
-//               ),
-//             ),
-//           );
-//         });
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     //scaffold
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: Text("Tes Page"),
-//       ),
-//       floatingActionButton: FloatingActionButton(
-//         onPressed: () {
-//           //
-//           _showPicker(context);
-//         },
-//         child: Icon(Icons.add),
-//       ),
-//       body: Container(
-//         child: getFirebaseImageFolder(),
-//       ),
-//     );
-//   }
-// }

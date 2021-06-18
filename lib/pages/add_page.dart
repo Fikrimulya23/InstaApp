@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -18,7 +19,7 @@ class MyAddPage extends StatefulWidget {
 }
 
 class _MyAddPageState extends State<MyAddPage> {
-  TextEditingController recipeInputController;
+  TextEditingController captionInputController;
   TextEditingController nameInputController;
   TextEditingController imageInputController;
 
@@ -26,7 +27,7 @@ class _MyAddPageState extends State<MyAddPage> {
   final db = FirebaseFirestore.instance;
   final _formKey = GlobalKey<FormState>();
   String name;
-  String recipe;
+  String caption;
 
   pickerCam() async {
     PickedFile img = await ImagePicker().getImage(source: ImageSource.camera);
@@ -60,7 +61,10 @@ class _MyAddPageState extends State<MyAddPage> {
     var fullImageName = 'nomfoto-$nuevoformato' + '.jpg';
     var fullImageName2 = 'nomfoto-$nuevoformato' + '.jpg';
 
+    FirebaseAuth _auth = FirebaseAuth.instance;
+
     final Reference ref = FirebaseStorage.instance.ref().child(fullImageName);
+    // ignore: unused_local_variable
     final UploadTask task = ref.putFile(image);
 
     var part1 =
@@ -71,10 +75,16 @@ class _MyAddPageState extends State<MyAddPage> {
 
     if (_formKey.currentState.validate()) {
       _formKey.currentState.save();
-      DocumentReference ref = await db.collection('colrecipes').add(
-          {'name': '$name', 'recipe': '$recipe', 'image': '$fullPathImage'});
+      DocumentReference ref = await db.collection('photos').add({
+        'name': _auth.currentUser.email,
+        'caption': '$caption',
+        'image': '$fullPathImage'
+      });
       setState(() => id = ref.id);
-      Navigator.of(context).pop(); //regrese a la pantalla anterior
+      Future.delayed(const Duration(seconds: 1), () {
+        Navigator.of(context).pop(); //regrese a la pantalla anterior
+        image = null;
+      });
     }
   }
 
@@ -84,81 +94,131 @@ class _MyAddPageState extends State<MyAddPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Add Page'),
+        title: Text('Upload'),
+        backgroundColor: Color.fromRGBO(70, 208, 2017, 1),
       ),
-      body: ListView(
-        padding: EdgeInsets.all(8),
-        children: <Widget>[
-          Form(
-            key: _formKey,
-            child: Column(
-              children: <Widget>[
-                Row(
+      body: SingleChildScrollView(
+        child: Container(
+          color: Colors.grey[200],
+          width: MediaQuery.of(context).size.width,
+          height: MediaQuery.of(context).size.height - 100,
+          padding: EdgeInsets.all(8),
+          child: Column(
+            children: <Widget>[
+              Form(
+                key: _formKey,
+                child: Column(
                   children: <Widget>[
-                    new Container(
-                      height: 200.0,
-                      width: 200.0,
-                      decoration: new BoxDecoration(
-                        border: new Border.all(color: Colors.blueAccent),
-                      ),
-                      padding: new EdgeInsets.all(5.0),
-                      child: image == null ? Text('Add') : Image.file(image),
+                    Column(
+                      children: <Widget>[
+                        new Container(
+                          margin: EdgeInsets.only(top: 20),
+                          height: MediaQuery.of(context).size.width - 50,
+                          width: MediaQuery.of(context).size.width - 50,
+                          decoration: new BoxDecoration(
+                            border: new Border.all(
+                                width: 3, color: Colors.black.withOpacity(0.3)),
+                          ),
+                          padding: new EdgeInsets.all(5.0),
+                          child: image == null
+                              ? Center(
+                                  child: Text(
+                                  'new image',
+                                  style: TextStyle(
+                                      color: Colors.black.withOpacity(0.3)),
+                                ))
+                              : Image.file(image),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Container(
+                              margin: EdgeInsets.fromLTRB(20, 10, 20, 10),
+                              height: 40,
+                              width: MediaQuery.of(context).size.width * 0.35,
+                              decoration: BoxDecoration(
+                                  color: Colors.grey.withOpacity(0.2),
+                                  borderRadius: BorderRadius.circular(40)),
+                              child: InkWell(
+                                borderRadius: BorderRadius.circular(40),
+                                onTap: pickerCam,
+                                child: Center(
+                                  child: Icon(Icons.camera_alt),
+                                ),
+                              ),
+                            ),
+                            Container(
+                              margin: EdgeInsets.fromLTRB(20, 10, 20, 10),
+                              height: 40,
+                              width: MediaQuery.of(context).size.width * 0.35,
+                              decoration: BoxDecoration(
+                                  color: Colors.grey.withOpacity(0.2),
+                                  borderRadius: BorderRadius.circular(40)),
+                              child: InkWell(
+                                borderRadius: BorderRadius.circular(40),
+                                onTap: pickerGallery,
+                                child: Center(
+                                  child: Icon(
+                                    Icons.image,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        )
+                      ],
                     ),
-                    Divider(),
-                    new IconButton(
-                        icon: new Icon(Icons.camera_alt), onPressed: pickerCam),
-                    Divider(),
-                    new IconButton(
-                        icon: new Icon(Icons.image), onPressed: pickerGallery),
+                    Container(
+                      width: MediaQuery.of(context).size.width - 50,
+                      height: MediaQuery.of(context).size.width / 2,
+                      child: TextFormField(
+                        maxLines: 10,
+                        decoration: InputDecoration(
+                          border: InputBorder.none,
+                          hintText: 'caption',
+                          fillColor: Colors.black.withOpacity(0.1),
+                          filled: true,
+                        ),
+                        // ignore: missing_return
+                        validator: (value) {
+                          if (value.isEmpty) {
+                            return 'Please enter some caption';
+                          }
+                        },
+                        onSaved: (value) => caption = value,
+                      ),
+                    ),
                   ],
                 ),
-                Container(
-                  child: TextFormField(
-                    decoration: InputDecoration(
-                      border: InputBorder.none,
-                      hintText: 'name',
-                      fillColor: Colors.grey[300],
-                      filled: true,
+              ),
+              Expanded(child: SizedBox()),
+              Container(
+                // alignment: Alignment.bottomCenter,
+                margin: EdgeInsets.fromLTRB(0, 0, 0, 30),
+                height: 40,
+                width: MediaQuery.of(context).size.width * 0.6,
+                decoration: BoxDecoration(
+                  border: Border.all(
+                      width: 2, color: Colors.black.withOpacity(0.2)),
+                  borderRadius: BorderRadius.circular(10),
+                  color: Color.fromRGBO(70, 208, 2017, 1),
+                ),
+                child: InkWell(
+                  onTap: createData,
+                  child: Center(
+                    child: Text(
+                      "Upload",
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w500,
+                          fontSize: 15),
                     ),
-                    validator: (value) {
-                      if (value.isEmpty) {
-                        return 'Please enter some text';
-                      }
-                    },
-                    onSaved: (value) => name = value,
                   ),
                 ),
-                Container(
-                  child: TextFormField(
-                    maxLines: 10,
-                    decoration: InputDecoration(
-                      border: InputBorder.none,
-                      hintText: 'recipe',
-                      fillColor: Colors.grey[300],
-                      filled: true,
-                    ),
-                    validator: (value) {
-                      if (value.isEmpty) {
-                        return 'Please enter some recipe';
-                      }
-                    },
-                    onSaved: (value) => recipe = value,
-                  ),
-                )
-              ],
-            ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: <Widget>[
-              RaisedButton(
-                onPressed: createData,
-                child: Text('Create', style: TextStyle(color: Colors.white)),
-                color: Colors.green,
-              ),
+              )
             ],
-          )
-        ],
+          ),
+        ),
       ),
     );
   }
