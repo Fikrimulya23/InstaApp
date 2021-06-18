@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -14,8 +15,21 @@ class _MyInfoPageState extends State<MyInfoPage> {
   String name;
   String caption;
 
-  // TextEditingController nameInputController;
-  // TextEditingController captionInputController;
+  TextEditingController commentController = new TextEditingController();
+
+  CollectionReference comment =
+      FirebaseFirestore.instance.collection('comment');
+
+  FirebaseAuth _auth = FirebaseAuth.instance;
+  // DocumentReference ref = comment.doc().id;
+
+  Future<void> addComment(id, comment) {
+    // Call the user's CollectionReference to add a new user
+    return comment
+        .add({'post': id, 'name': _auth.currentUser.email, 'comment': comment})
+        .then((value) => print("User Added"))
+        .catchError((error) => print("Failed to add user: $error"));
+  }
 
   Future getPost() async {
     var firestore = FirebaseFirestore.instance;
@@ -115,14 +129,21 @@ class _MyInfoPageState extends State<MyInfoPage> {
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(15)),
                   child: TextFormField(
+                    controller: commentController,
                     decoration: InputDecoration(
                         border: InputBorder.none,
                         focusedBorder: InputBorder.none,
                         enabledBorder: InputBorder.none,
                         errorBorder: InputBorder.none,
                         disabledBorder: InputBorder.none,
-                        suffixIcon: Icon(Icons.send,
-                            color: Color.fromRGBO(70, 208, 2017, 1))),
+                        suffixIcon: InkWell(
+                          onTap: () {
+                            print(widget.ds.id);
+                            addComment(widget.ds.id, commentController.text);
+                          },
+                          child: Icon(Icons.send,
+                              color: Color.fromRGBO(70, 208, 2017, 1)),
+                        )),
                   )),
             ],
           ),
