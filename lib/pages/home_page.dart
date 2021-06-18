@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:insta_app/pages/tes_page.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -30,7 +31,14 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
                   IconButton(
-                      icon: Icon(Icons.chat_bubble_outline), onPressed: () {}),
+                      icon: Icon(Icons.chat_bubble_outline),
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => TesPage(),
+                            ));
+                      }),
                 ],
               ),
             ],

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:insta_app/services/auth_service.dart';
 
 class AccountPage extends StatelessWidget {
   @override
@@ -7,7 +8,6 @@ class AccountPage extends StatelessWidget {
         appBar: AppBar(
           toolbarHeight: MediaQuery.of(context).size.height * 0.4,
           backgroundColor: Color.fromRGBO(70, 208, 2017, 1),
-          // automaticallyImplyLeading: false,
           title: SizedBox(
             height: MediaQuery.of(context).size.height * 0.4,
             width: MediaQuery.of(context).size.width,
@@ -17,10 +17,14 @@ class AccountPage extends StatelessWidget {
                 Row(
                   children: [
                     Expanded(child: SizedBox()),
-                    IconButton(icon: Icon(Icons.settings), onPressed: () {}),
+                    IconButton(
+                        icon: Icon(Icons.settings),
+                        onPressed: () {
+                          AuthServices().signOut();
+                        }),
                   ],
                 ),
-                // Expanded(child: SizedBox()),
+
                 Column(
                   children: [
                     Container(

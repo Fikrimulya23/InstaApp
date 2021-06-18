@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:insta_app/pages/bottom_navigation.dart';
 import 'package:insta_app/pages/home_page.dart';
 import 'package:insta_app/pages/register_page.dart';
+import 'package:insta_app/services/auth_service.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -166,12 +167,7 @@ class _LoginPageState extends State<LoginPage> {
                         child: InkWell(
                           borderRadius: BorderRadius.circular(10),
                           onTap: () {
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => BottomNavigation(),
-                              ),
-                            );
+                            AuthServices().signInEmail();
                           },
                           splashColor: Color.fromRGBO(19, 73, 123, 0.3),
                           child: Center(
